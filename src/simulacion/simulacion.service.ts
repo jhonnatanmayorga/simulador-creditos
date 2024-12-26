@@ -1,51 +1,57 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ClientesService } from '../clientes/clientes.service';
+import { PerfilesService } from '../perfiles/perfiles.service';
+import { OfertasService } from '../ofertas/ofertas.service';
 
 @Injectable()
 export class SimulacionService {
+  constructor(
+    private readonly clientesService: ClientesService,
+    private readonly perfilesService: PerfilesService,
+    private readonly ofertasService: OfertasService, // Inyectar OfertasService
+  ) {}
 
-    calcularCuota(monto: number, tasa: number, plazo: number): number {
-        const tasaMensual = Math.pow(1 + tasa / 100, 1 / 12) - 1;
-        const numerador = monto * tasaMensual;
-        const denominador = 1 - Math.pow(1 + tasaMensual, -plazo);
-      
-        const cuota = numerador / denominador;
-      
-        // Redondear
-        return Math.round(cuota ) ;
+  simularCuotas(clienteId: string, monto: number, plazo: number) {
+    const cliente = this.clientesService.getCliente(clienteId);
+  
+    if (!cliente) {
+      throw new NotFoundException(`El cliente con ID ${clienteId} no fue encontrado`);
+    }
+    const perfil = cliente.perfil;
+    const capacidadEndeudamiento = cliente.capacidadEndeudamiento;
+    // Obtener tasas de interés según el perfil y monto
+    const tasa = this.perfilesService.getTasaPorPerfilYMonto(perfil, monto);
+  
+    if (!tasa) {
+      throw new NotFoundException(`No se encontró una tasa para el perfil ${perfil} y monto ${monto}`);
+    }
+    console.log('Tasa:', tasa);
+    
+
+    const cuotaMensual = this.ofertasService.calcularCuota(monto, tasa, plazo);
+    const seguro = this.ofertasService.calcularSeguro(cliente.edad, cuotaMensual);
+
+    if( cuotaMensual + seguro > capacidadEndeudamiento ){
+      return {
+        simulacion: "Valor de la cuota Excede la capacidad de endeudamiento"
+      }
     }
 
-    calcularSeguro(edad: number, cuotaMensual: number): number {
-        let porcentajeSeguro = 0;
-      
-        if (edad >= 19 && edad <= 30) {
-          porcentajeSeguro = 0.03;
-        } else if (edad >= 31 && edad <= 60) {
-          porcentajeSeguro = 0.04;
-        } else if (edad >= 61 && edad <= 70) {
-          porcentajeSeguro = 0.05;
-        }
-      
-        const seguro = cuotaMensual * porcentajeSeguro;
-        
-      
-        // Redondear
-        return Math.round(seguro);
-      }
-      
-      
-
-    simularCuotas(monto: number, tasa: number, plazo: number, edad: number) {
-      const cuotaMensual = this.calcularCuota(monto, tasa, plazo);
-      const seguro = this.calcularSeguro(edad, cuotaMensual);
-
-      return {
-        monto,
+    return {
+      cliente: {
+        id: cliente.id,
+        nombre: cliente.nombre,
+        perfil: cliente.perfil,
+      },
+      simulacion: {
         plazo,
         tasa,
         cuotaMensual,
         seguro,
-        totalMensual: cuotaMensual + seguro,
-      };
-    }
-
+        total: cuotaMensual + seguro,
+       
+      }
+    };
+  }
+  
 }

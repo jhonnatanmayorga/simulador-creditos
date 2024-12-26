@@ -1,52 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { readFileSync } from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class PerfilesService {
+  private getPerfiles() {
+    const filePath = path.resolve(__dirname, '../../src/perfiles/data/perfiles.db.json');
+    const data = readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  }
+  private perfiles = this.getPerfiles();
 
-    private readonly tasas = {
-        AAA: [
-          { rango: [0, 7000000], tasa: 23.45 },
-          { rango: [7000000, 15000000], tasa: 20.10 },
-          { rango: [15000000, 50000000], tasa: 17.60 },
-          { rango: [50000000, 80000000], tasa: 15.10 },
-          { rango: [80000000, Infinity], tasa: 13.10 },
-        ],
-        AA: [
-          { rango: [0, 7000000], tasa: 24.95 },
-          { rango: [7000000, 15000000], tasa: 24.00 },
-          { rango: [15000000, 50000000], tasa: 21.30 },
-          { rango: [50000000, 80000000], tasa: 18.50 },
-          { rango: [80000000, Infinity], tasa: 16.50 },
-        ],
-        A: [
-          { rango: [0, 7000000], tasa: 25.50 },
-          { rango: [7000000, 15000000], tasa: 25.30 },
-          { rango: [15000000, 50000000], tasa: 23.80 },
-          { rango: [50000000, 80000000], tasa: 21.30 },
-          { rango: [80000000, Infinity], tasa: 19.30 },
-        ],
-        BAA: [
-          { rango: [0, 7000000], tasa: 26.10 },
-          { rango: [7000000, 15000000], tasa: 26.10 },
-          { rango: [15000000, 50000000], tasa: 26.10 },
-          { rango: [50000000, 80000000], tasa: 26.10 },
-          { rango: [80000000, Infinity], tasa: 26.10 },
-        ],
-    };
-
-    getTasaPorPerfilYMonto(perfil: string, monto: number): number {
-      const tasasPerfil = this.tasas[perfil];
-      if (!tasasPerfil) {
-        throw new Error(`Perfil ${perfil} no encontrado`);
-      }
-
-      const tasa = tasasPerfil.find(
-        (t) => monto >= t.rango[0] && monto < t.rango[1],
-      );
-      if (!tasa) {
-        throw new Error(`No se encontró una tasa para el monto ${monto}`);
-      }
-
-      return tasa.tasa;
+  getTasaPorPerfilYMonto(perfil: string, monto: number): number {
+    const perfilEncontrado = this.perfiles.find((p) => p.perfil === perfil);
+    console.log('perfil encontrado', perfilEncontrado);
+    
+    if (!perfilEncontrado) {
+      throw new NotFoundException(`El perfil ${perfil} no fue encontrado`);
     }
+
+    const tasaEncontrada = perfilEncontrado.tasas.find((t) => {
+      const [rangoMin, rangoMax] = t.rango;
+      const dentroDelRango = monto >= rangoMin && (rangoMax === null || monto < rangoMax);
+      return dentroDelRango;
+    });
+
+    if (!tasaEncontrada) {
+      throw new NotFoundException(
+        `No se encontró una tasa para el monto ${monto} en el perfil ${perfil}`,
+      );
+    }
+
+    return tasaEncontrada.tasa;
+  }
 }

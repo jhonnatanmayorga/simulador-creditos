@@ -1,0 +1,43 @@
+[
+    {
+      "id": "1",
+      "clienteId": "1",
+      "monto": 7847500,
+      "tasa": 20.1,
+      "plazo": 24,
+      "estado": "activo"
+    },
+    {
+      "id": "2",
+      "clienteId": "1",
+      "monto": 11442000,
+      "tasa": 20.1,
+      "plazo": 36,
+      "estado": "activo"
+    },
+    {
+      "id": "3",
+      "clienteId": "2",
+      "monto": 7847500,
+      "tasa": 20.1,
+      "plazo": 24,
+      "estado": "desembolsado"
+    },
+    {
+      "id": "4",
+      "clienteId": "2",
+      "monto": 11442000,
+      "tasa": 20.1,
+      "plazo": 36,
+      "estado": "inactivo"
+    },
+    {
+      "id": "5",
+      "clienteId": "3",
+      "monto": 11442000,
+      "tasa": 20.1,
+      "plazo": 12,
+      "estado": "activo"
+    }
+  ]
+  

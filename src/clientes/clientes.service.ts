@@ -1,20 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { readFileSync } from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ClientesService {
-  // Datos simulados para los clientes
-  private readonly clientes = [
-    { id: '1', nombre: 'Cliente 1', edad: 25, perfil: 'AAA', monto: 10000000 },
-    { id: '2', nombre: 'Cliente 2', edad: 45, perfil: 'AA', monto: 20000000 },
-    { id: '3', nombre: 'Cliente 3', edad: 65, perfil: 'BAA', monto: 5000000 },
-  ];
+  private getClientes() {
+    const filePath = path.resolve(__dirname, '../../src/clientes/data/clientes.db.json');
+    const data = readFileSync(filePath, 'utf8');
+    return JSON.parse(data);
+  }
 
-  // Método para obtener un cliente por su ID
-  getCliente(id: string) {
-    const cliente = this.clientes.find((c) => c.id === id);
+  getCliente(clienteId: string) {
+    const clientes = this.getClientes();
+
+    const cliente = clientes.find((cliente) => cliente.id === clienteId);
+    
     if (!cliente) {
-      throw new Error(`Cliente con ID ${id} no encontrado`);
+      throw new NotFoundException(`El cliente con ID ${clienteId} no fue encontrado`);
     }
+    console.log('Cliente encontrado:', cliente);
     return cliente;
   }
+
+
 }

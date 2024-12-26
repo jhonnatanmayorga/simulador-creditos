@@ -25,7 +25,7 @@ describe('ClientesController', () => {
       nombre: 'Cliente 1',
       edad: 25,
       perfil: 'AAA',
-      monto: 10000000,
+      capacidadEndeudamiento: 200000
     });
   });
 });

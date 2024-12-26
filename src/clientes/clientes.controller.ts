@@ -5,9 +5,10 @@ import { ClientesService } from './clientes.service';
 export class ClientesController {
   constructor(private readonly clientesService: ClientesService) {}
 
-  // Endpoint para obtener un cliente por ID
-  @Get(':id')
-  getCliente(@Param('id') id: string) {
-    return this.clientesService.getCliente(id);
+  @Get(':clienteId')
+  getCliente(@Param('clienteId') clienteId: string) {
+    console.log('clienteId', clienteId);
+    
+    return this.clientesService.getCliente(clienteId);
   }
 }

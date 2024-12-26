@@ -1,5 +1,8 @@
 {
   "compilerOptions": {
+    "resolveJsonModule": true,  // Permitir importaciones de JSON
+    "esModuleInterop": true,   // Asegurar compatibilidad con módulos ES
+    "strict": true,            // Mantener verificaciones estrictas
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
