@@ -8,7 +8,7 @@ export class SimulacionService {
   constructor(
     private readonly clientesService: ClientesService,
     private readonly perfilesService: PerfilesService,
-    private readonly ofertasService: OfertasService, // Inyectar OfertasService
+    private readonly ofertasService: OfertasService,
   ) {}
 
   simularCuotas(clienteId: string, monto: number, plazo: number) {

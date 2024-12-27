@@ -8,16 +8,8 @@ export class SimulacionController {
 
   @Post('cuotas')
   simularCuotas(
-/*     @Body('clienteId') clienteId: string,
-    @Body('monto') monto: number,
-    @Body('plazo') plazo: number, */
     @Body() params: SimulacionDto
   ) {
-    /* if (!clienteId || !monto || !plazo) {
-      throw new NotFoundException(
-        'El clienteId, monto y plazo son obligatorios para realizar la simulación',
-      );
-    } */
     const { clienteId, monto, plazo } = params
     return this.simulacionService.simularCuotas(clienteId, monto, plazo);
   }
